@@ -30,6 +30,9 @@ def init_db(app: Flask):
         _ensure_column(db.engine, 'properties', 'buyer_interest', 'INTEGER')
         _ensure_column(db.engine, 'properties', 'seller_motivation', 'INTEGER')
         
+        # Tasks
+        _ensure_column(db.engine, 'tasks', 'property_id', 'INTEGER REFERENCES properties(id)')
+
         # SQLite-specific migrations
         if is_sqlite:
             _ensure_properties_address_nullable(db.engine)

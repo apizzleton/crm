@@ -121,7 +121,7 @@ def create():
         db.session.commit()
         
         flash('Property created successfully.', 'success')
-        return redirect(request.referrer or url_for('deals.create'))
+        return redirect(request.referrer or url_for('properties.list_properties'))
     
     except Exception as e:
         db.session.rollback()

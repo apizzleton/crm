@@ -4,7 +4,7 @@ Touchpoint routes for logging interactions.
 from datetime import datetime
 from flask import Blueprint, request, redirect, url_for, flash, render_template
 from crm.db import db
-from crm.models import Touchpoint, TouchpointType, Task, TaskPriority, Deal, Contact
+from crm.models import Touchpoint, TouchpointType, Task, TaskPriority, Contact
 
 touchpoints_bp = Blueprint('touchpoints', __name__, url_prefix='/touchpoints')
 
@@ -14,8 +14,7 @@ def index():
     """List all touchpoints."""
     # Eager load relationships for efficiency
     touchpoints = Touchpoint.query.options(
-        db.joinedload(Touchpoint.contact),
-        db.joinedload(Touchpoint.deal)
+        db.joinedload(Touchpoint.contact)
     ).order_by(Touchpoint.occurred_at.desc()).all()
     
     return render_template('touchpoints/list.html', touchpoints=touchpoints)
@@ -25,7 +24,6 @@ def index():
 def create():
     """Create a new touchpoint and optionally create a follow-up task."""
     try:
-        deal_id = request.form.get('deal_id', type=int) or None
         contact_id = request.form.get('contact_id', type=int) or None
         touchpoint_type = request.form.get('touchpoint_type', '').strip()
         occurred_at_str = request.form.get('occurred_at', '')
@@ -46,16 +44,12 @@ def create():
             flash('Summary is required.', 'error')
             return redirect(request.referrer or url_for('dashboard.index'))
         
-        if not deal_id and not contact_id:
-            flash('Either a deal or contact must be selected.', 'error')
+        if not contact_id:
+            flash('A contact must be selected.', 'error')
             return redirect(request.referrer or url_for('dashboard.index'))
         
-        # Validate deal/contact exist if provided
-        if deal_id and not Deal.query.get(deal_id):
-            flash('Invalid deal selected.', 'error')
-            return redirect(request.referrer or url_for('dashboard.index'))
-        
-        if contact_id and not Contact.query.get(contact_id):
+        # Validate contact exists
+        if not Contact.query.get(contact_id):
             flash('Invalid contact selected.', 'error')
             return redirect(request.referrer or url_for('dashboard.index'))
         
@@ -73,7 +67,6 @@ def create():
         
         # Create touchpoint
         touchpoint = Touchpoint(
-            deal_id=deal_id,
             contact_id=contact_id,
             touchpoint_type=touchpoint_type,
             occurred_at=occurred_at,
@@ -103,7 +96,6 @@ def create():
                 description=task_description,
                 due_date=task_due_date,
                 priority=task_priority,
-                deal_id=deal_id,
                 contact_id=contact_id,
                 status='Open'
             )

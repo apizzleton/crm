@@ -10,12 +10,29 @@
         <div class="card">
             <div class="card-body">
                 <form method="POST" action="{{ url_for('tasks.create') }}">
-                    {% if deal_id %}
-                        <input type="hidden" name="deal_id" value="{{ deal_id }}">
-                    {% endif %}
-                    {% if contact_id %}
-                        <input type="hidden" name="contact_id" value="{{ contact_id }}">
-                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Contact (Optional)</label>
+                        <select name="contact_id" class="form-select">
+                            <option value="">-- Select Contact --</option>
+                            {% for contact in contacts %}
+                            <option value="{{ contact.id }}" {% if contact_id == contact.id %}selected{% endif %}>
+                                {{ contact.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Property (Optional)</label>
+                        <select name="property_id" class="form-select">
+                            <option value="">-- Select Property --</option>
+                            {% for property in properties %}
+                            <option value="{{ property.id }}" {% if property_id == property.id %}selected{% endif %}>
+                                {{ property.name or property.address }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     
                     <div class="mb-3">
                         <label class="form-label">Description *</label>

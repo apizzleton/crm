@@ -6,18 +6,6 @@ from enum import Enum
 from crm.db import db
 
 
-class DealStage(Enum):
-    """Deal pipeline stages."""
-    LEAD = "Lead"
-    CONTACTED = "Contacted"
-    UNDERWRITING = "Underwriting"
-    LOI_SENT = "LOI_Sent"
-    LOI_ACCEPTED = "LOI_Accepted"
-    PSA = "PSA"
-    CLOSED_WON = "Closed_Won"
-    CLOSED_LOST = "Closed_Lost"
-
-
 class TaskStatus(Enum):
     """Task status options."""
     OPEN = "Open"
@@ -42,7 +30,7 @@ class TouchpointType(Enum):
 
 
 class ContactRole(Enum):
-    """Roles a contact can have in relation to a deal."""
+    """Roles a contact can have."""
     LISTING_BROKER = "Listing_Broker"
     OWNER = "Owner"
     PROPERTY_MANAGER = "Property_Manager"
@@ -67,7 +55,6 @@ class Contact(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    deal_roles = db.relationship('DealContactRole', back_populates='contact', cascade='all, delete-orphan')
     touchpoints = db.relationship('Touchpoint', back_populates='contact', cascade='all, delete-orphan')
     tasks = db.relationship('Task', back_populates='contact', cascade='all, delete-orphan')
     property_ownerships = db.relationship('PropertyOwner', back_populates='contact', cascade='all, delete-orphan')
@@ -98,8 +85,8 @@ class Property(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    deals = db.relationship('Deal', back_populates='property', cascade='all, delete-orphan')
     owners = db.relationship('PropertyOwner', back_populates='property', cascade='all, delete-orphan')
+    tasks = db.relationship('Task', back_populates='related_property', cascade='all, delete-orphan')
     
     def __repr__(self):
         return f'<Property {self.name or self.address}>'
@@ -124,57 +111,12 @@ class PropertyOwner(db.Model):
         return f'<PropertyOwner property={self.property_id} contact={self.contact_id}>'
 
 
-class Deal(db.Model):
-    """Deal model for tracking multifamily deals."""
-    __tablename__ = 'deals'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    deal_name = db.Column(db.String(200), nullable=False)
-    property_id = db.Column(db.Integer, db.ForeignKey('properties.id'), nullable=False)
-    stage = db.Column(db.String(50), default=DealStage.LEAD.value, nullable=False)
-    target_close_date = db.Column(db.Date)
-    asking_price = db.Column(db.Numeric(15, 2))  # Optional
-    links = db.Column(db.Text)  # JSON or comma-separated URLs
-    notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    property = db.relationship('Property', back_populates='deals')
-    contact_roles = db.relationship('DealContactRole', back_populates='deal', cascade='all, delete-orphan')
-    touchpoints = db.relationship('Touchpoint', back_populates='deal', cascade='all, delete-orphan')
-    tasks = db.relationship('Task', back_populates='deal', cascade='all, delete-orphan')
-    
-    def __repr__(self):
-        return f'<Deal {self.deal_name}>'
-
-
-class DealContactRole(db.Model):
-    """Junction table linking deals to contacts with specific roles."""
-    __tablename__ = 'deal_contact_roles'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    deal_id = db.Column(db.Integer, db.ForeignKey('deals.id'), nullable=False)
-    contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'), nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # ContactRole enum value
-    notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    deal = db.relationship('Deal', back_populates='contact_roles')
-    contact = db.relationship('Contact', back_populates='deal_roles')
-    
-    def __repr__(self):
-        return f'<DealContactRole deal={self.deal_id} contact={self.contact_id} role={self.role}>'
-
-
 class Touchpoint(db.Model):
     """Touchpoint model for logging calls, emails, meetings, etc."""
     __tablename__ = 'touchpoints'
     
     id = db.Column(db.Integer, primary_key=True)
-    deal_id = db.Column(db.Integer, db.ForeignKey('deals.id'))
-    contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'))
+    contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'), nullable=False)
     touchpoint_type = db.Column(db.String(20), nullable=False)  # TouchpointType enum value
     occurred_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     summary = db.Column(db.Text, nullable=False)
@@ -182,7 +124,6 @@ class Touchpoint(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
-    deal = db.relationship('Deal', back_populates='touchpoints')
     contact = db.relationship('Contact', back_populates='touchpoints')
     
     def __repr__(self):
@@ -198,15 +139,15 @@ class Task(db.Model):
     due_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), default=TaskStatus.OPEN.value, nullable=False)
     priority = db.Column(db.String(20), default=TaskPriority.MEDIUM.value)
-    deal_id = db.Column(db.Integer, db.ForeignKey('deals.id'))
     contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'))
+    property_id = db.Column(db.Integer, db.ForeignKey('properties.id'))
     completed_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    deal = db.relationship('Deal', back_populates='tasks')
     contact = db.relationship('Contact', back_populates='tasks')
+    related_property = db.relationship('Property', back_populates='tasks')
     
     def __repr__(self):
         return f'<Task {self.description[:50]}>'

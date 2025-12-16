@@ -2,17 +2,32 @@
 Flask application entrypoint for Multifamily CRM.
 Run with: python app.py
 """
+import os
 from flask import Flask
+from dotenv import load_dotenv
 from crm.db import init_db
 from crm.routes import register_routes
 from datetime import datetime
 
-import os
+# Load environment variables from .env file
+load_dotenv()
+
 app = Flask(__name__, 
             template_folder=os.path.join(os.path.dirname(__file__), 'crm', 'templates'),
             static_folder=os.path.join(os.path.dirname(__file__), 'crm', 'static'))
-app.config['SECRET_KEY'] = 'dev-secret-key-change-in-production'  # Not needed for local-only, but Flask requires it
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crm.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Database configuration - use DATABASE_URL from environment if available
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Handle postgres:// vs postgresql:// (some services use postgres://)
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Fallback to local SQLite for development without .env
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crm.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
