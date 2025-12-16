@@ -98,6 +98,22 @@
                         </div>
                     </div>
 
+                    <!-- Interest/Motivation Scales -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="buyer_interest" class="form-label">Buyer Interest (1-10)</label>
+                            <input type="number" class="form-control" id="buyer_interest" name="buyer_interest"
+                                   value="{{ property.buyer_interest or '' }}" min="1" max="10">
+                            <div class="form-text">Your interest level in purchasing this property.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="seller_motivation" class="form-label">Seller Motivation (1-10)</label>
+                            <input type="number" class="form-control" id="seller_motivation" name="seller_motivation"
+                                   value="{{ property.seller_motivation or '' }}" min="1" max="10">
+                            <div class="form-text">How eager the seller is to sell this property.</div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="notes" class="form-label">Notes</label>
                         <textarea class="form-control" id="notes" name="notes" rows="4">{{ property.notes or '' }}</textarea>

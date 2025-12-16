@@ -74,6 +74,33 @@ def create():
                 flash('Invalid maximum estimated value format.', 'error')
                 return redirect(url_for('properties.create'))
         
+        # Parse buyer interest and seller motivation scales (1-10)
+        buyer_interest_str = request.form.get('buyer_interest', '').strip() or None
+        seller_motivation_str = request.form.get('seller_motivation', '').strip() or None
+        
+        buyer_interest = None
+        seller_motivation = None
+        
+        if buyer_interest_str:
+            try:
+                buyer_interest = int(buyer_interest_str)
+                if buyer_interest < 1 or buyer_interest > 10:
+                    flash('Buyer interest must be between 1 and 10.', 'error')
+                    return redirect(url_for('properties.create'))
+            except ValueError:
+                flash('Invalid buyer interest format.', 'error')
+                return redirect(url_for('properties.create'))
+        
+        if seller_motivation_str:
+            try:
+                seller_motivation = int(seller_motivation_str)
+                if seller_motivation < 1 or seller_motivation > 10:
+                    flash('Seller motivation must be between 1 and 10.', 'error')
+                    return redirect(url_for('properties.create'))
+            except ValueError:
+                flash('Invalid seller motivation format.', 'error')
+                return redirect(url_for('properties.create'))
+        
         property_obj = Property(
             name=name,
             address=address,
@@ -85,6 +112,8 @@ def create():
             property_class=property_class,
             estimated_value_min=estimated_value_min,
             estimated_value_max=estimated_value_max,
+            buyer_interest=buyer_interest,
+            seller_motivation=seller_motivation,
             notes=notes
         )
         
@@ -233,6 +262,33 @@ def edit(property_id):
                 flash('Invalid maximum estimated value format.', 'error')
                 return redirect(url_for('properties.edit', property_id=property_id))
 
+        # Parse buyer interest and seller motivation scales (1-10)
+        buyer_interest_str = request.form.get('buyer_interest', '').strip() or None
+        seller_motivation_str = request.form.get('seller_motivation', '').strip() or None
+        
+        buyer_interest = None
+        seller_motivation = None
+        
+        if buyer_interest_str:
+            try:
+                buyer_interest = int(buyer_interest_str)
+                if buyer_interest < 1 or buyer_interest > 10:
+                    flash('Buyer interest must be between 1 and 10.', 'error')
+                    return redirect(url_for('properties.edit', property_id=property_id))
+            except ValueError:
+                flash('Invalid buyer interest format.', 'error')
+                return redirect(url_for('properties.edit', property_id=property_id))
+        
+        if seller_motivation_str:
+            try:
+                seller_motivation = int(seller_motivation_str)
+                if seller_motivation < 1 or seller_motivation > 10:
+                    flash('Seller motivation must be between 1 and 10.', 'error')
+                    return redirect(url_for('properties.edit', property_id=property_id))
+            except ValueError:
+                flash('Invalid seller motivation format.', 'error')
+                return redirect(url_for('properties.edit', property_id=property_id))
+
         # Update property
         property_obj.name = name
         property_obj.address = address
@@ -244,6 +300,8 @@ def edit(property_id):
         property_obj.property_class = property_class
         property_obj.estimated_value_min = estimated_value_min
         property_obj.estimated_value_max = estimated_value_max
+        property_obj.buyer_interest = buyer_interest
+        property_obj.seller_motivation = seller_motivation
         property_obj.notes = notes
 
         db.session.commit()

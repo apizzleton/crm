@@ -68,6 +68,26 @@
                     </dd>
                     {% endif %}
 
+                    {% if property.buyer_interest %}
+                    <dt class="col-sm-3">Buyer Interest</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge {% if property.buyer_interest >= 8 %}bg-success{% elif property.buyer_interest >= 5 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            {{ property.buyer_interest }}/10
+                        </span>
+                        <small class="text-muted ms-2">How much you want to buy</small>
+                    </dd>
+                    {% endif %}
+
+                    {% if property.seller_motivation %}
+                    <dt class="col-sm-3">Seller Motivation</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge {% if property.seller_motivation >= 8 %}bg-success{% elif property.seller_motivation >= 5 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            {{ property.seller_motivation }}/10
+                        </span>
+                        <small class="text-muted ms-2">How much seller wants to sell</small>
+                    </dd>
+                    {% endif %}
+
                     {% if property.notes %}
                     <dt class="col-sm-3">Notes</dt>
                     <dd class="col-sm-9">{{ property.notes }}</dd>

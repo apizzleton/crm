@@ -91,6 +91,8 @@ class Property(db.Model):
     property_class = db.Column(db.String(10))  # A, B, C, etc.
     estimated_value_min = db.Column(db.Numeric(15, 2))  # Minimum estimated value
     estimated_value_max = db.Column(db.Numeric(15, 2))  # Maximum estimated value
+    buyer_interest = db.Column(db.Integer)  # Scale 1-10: How much you want to buy this property
+    seller_motivation = db.Column(db.Integer)  # Scale 1-10: How much the seller wants to sell
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

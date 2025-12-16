@@ -60,6 +60,8 @@
                                 <th>Property</th>
                                 <th>Address</th>
                                 <th>Units</th>
+                                <th>Buyer Interest</th>
+                                <th>Seller Motivation</th>
                                 <th>Owner</th>
                                 <th>Actions</th>
                             </tr>
@@ -82,6 +84,24 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ property.units or '—' }}</td>
+                                    <td>
+                                        {% if property.buyer_interest %}
+                                            <span class="badge {% if property.buyer_interest >= 8 %}bg-success{% elif property.buyer_interest >= 5 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                                {{ property.buyer_interest }}/10
+                                            </span>
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if property.seller_motivation %}
+                                            <span class="badge {% if property.seller_motivation >= 8 %}bg-success{% elif property.seller_motivation >= 5 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                                {{ property.seller_motivation }}/10
+                                            </span>
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         {% if property.owners_list %}
                                             {% for owner in property.owners_list %}
