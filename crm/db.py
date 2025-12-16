@@ -26,6 +26,10 @@ def init_db(app: Flask):
         if is_sqlite:
             # Ensure new columns exist on existing databases without migrations.
             _ensure_column(db.engine, 'properties', 'name', 'VARCHAR(200)')
+            _ensure_column(db.engine, 'properties', 'estimated_value_min', 'NUMERIC(15, 2)')
+            _ensure_column(db.engine, 'properties', 'estimated_value_max', 'NUMERIC(15, 2)')
+            _ensure_column(db.engine, 'properties', 'buyer_interest', 'INTEGER')
+            _ensure_column(db.engine, 'properties', 'seller_motivation', 'INTEGER')
             _ensure_properties_address_nullable(db.engine)
             with db.engine.connect() as conn:
                 conn.execute(
