@@ -18,7 +18,7 @@ def create():
     # POST - create property
     try:
         name = request.form.get('name', '').strip() or None
-        address = request.form.get('address', '').strip()
+        address = request.form.get('address', '').strip() or None
         city = request.form.get('city', '').strip() or None
         state = request.form.get('state', '').strip() or None
         zip_code = request.form.get('zip_code', '').strip() or None
@@ -27,12 +27,14 @@ def create():
         property_class = request.form.get('property_class', '').strip() or None
         notes = request.form.get('notes', '').strip() or None
         
-        if not address:
-            flash('Address is required.', 'error')
+        # Require at least one of name or address; fallback ties them together when one is missing.
+        if not name and not address:
+            flash('Please provide at least a property name or an address.', 'error')
             return redirect(url_for('properties.create'))
-        # Default name to address if not provided to avoid blank display
         if not name:
             name = address
+        if not address:
+            address = name
         
         units = None
         if units_str:
@@ -151,7 +153,7 @@ def edit(property_id):
     # POST - update property
     try:
         name = request.form.get('name', '').strip() or None
-        address = request.form.get('address', '').strip()
+        address = request.form.get('address', '').strip() or None
         city = request.form.get('city', '').strip() or None
         state = request.form.get('state', '').strip() or None
         zip_code = request.form.get('zip_code', '').strip() or None
@@ -160,11 +162,13 @@ def edit(property_id):
         property_class = request.form.get('property_class', '').strip() or None
         notes = request.form.get('notes', '').strip() or None
 
-        if not address:
-            flash('Address is required.', 'error')
+        if not name and not address:
+            flash('Please provide at least a property name or an address.', 'error')
             return redirect(url_for('properties.edit', property_id=property_id))
         if not name:
             name = address
+        if not address:
+            address = name
 
         units = None
         if units_str:

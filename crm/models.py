@@ -82,7 +82,7 @@ class Property(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))  # Optional display name
-    address = db.Column(db.String(300), nullable=False)
+    address = db.Column(db.String(300), nullable=True)
     city = db.Column(db.String(100))
     state = db.Column(db.String(50))
     zip_code = db.Column(db.String(20))
