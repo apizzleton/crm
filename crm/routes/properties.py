@@ -5,6 +5,7 @@ from decimal import Decimal, InvalidOperation
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from crm.db import db
 from crm.models import Property, Contact, PropertyOwner
+from sqlalchemy.orm import joinedload
 
 properties_bp = Blueprint('properties', __name__, url_prefix='/properties')
 
@@ -137,7 +138,7 @@ def list_properties():
     if max_units is not None:
         query = query.filter(Property.units <= max_units)
 
-    properties = query.order_by(Property.created_at.desc()).all()
+    properties = query.options(joinedload(Property.owners).joinedload(PropertyOwner.contact)).order_by(Property.created_at.desc()).all()
 
     # Add owner information to each property
     for property in properties:
