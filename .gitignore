@@ -4,23 +4,39 @@ __pycache__/
 *$py.class
 *.so
 .Python
-venv/
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.env
+.venv
 env/
-ENV/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+instance/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+# Logs
+*.log
+
+# Local config and secrets - NEVER COMMIT
+migrate_data.py
+DEPLOYMENT.md
+QUICK_START.md
+VERCEL_ENV_SETUP.txt
+.env.local
+.env.production
 
 # OS
 .DS_Store
 Thumbs.db
-
-.vercel
