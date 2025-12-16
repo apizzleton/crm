@@ -55,6 +55,19 @@
                     <dd class="col-sm-9">{{ property.year_built }}</dd>
                     {% endif %}
 
+                    {% if property.estimated_value_min or property.estimated_value_max %}
+                    <dt class="col-sm-3">Estimated Value</dt>
+                    <dd class="col-sm-9">
+                        {% if property.estimated_value_min and property.estimated_value_max %}
+                            ${{ "{:,.0f}".format(property.estimated_value_min) }} - ${{ "{:,.0f}".format(property.estimated_value_max) }}
+                        {% elif property.estimated_value_min %}
+                            Min: ${{ "{:,.0f}".format(property.estimated_value_min) }}
+                        {% elif property.estimated_value_max %}
+                            Max: ${{ "{:,.0f}".format(property.estimated_value_max) }}
+                        {% endif %}
+                    </dd>
+                    {% endif %}
+
                     {% if property.notes %}
                     <dt class="col-sm-3">Notes</dt>
                     <dd class="col-sm-9">{{ property.notes }}</dd>
