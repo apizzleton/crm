@@ -16,7 +16,7 @@
                 <form method="GET" action="{{ url_for('search.search') }}">
                     <div class="input-group">
                         <input type="text" name="q" class="form-control form-control-lg" 
-                               placeholder="Search deals, contacts, properties..." 
+                               placeholder="Search contacts, properties..." 
                                value="{{ query }}">
                         <button class="btn btn-primary" type="submit">
                             <i class="bi bi-search"></i> Search
@@ -30,33 +30,8 @@
 
 {% if query %}
 <div class="row">
-    <!-- Deals Results -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Deals ({{ deals|length }})</h5>
-            </div>
-            <div class="card-body">
-                {% if deals %}
-                    {% for deal in deals %}
-                        <div class="card mb-2">
-                            <div class="card-body p-2">
-                                <h6 class="mb-1">
-                                    <a href="{{ url_for('deals.detail', deal_id=deal.id) }}">{{ deal.deal_name }}</a>
-                                </h6>
-                                <small class="text-muted">{{ deal.stage }}</small>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted">No deals found.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
     <!-- Contacts Results -->
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Contacts ({{ contacts|length }})</h5>
@@ -83,7 +58,7 @@
     </div>
 
     <!-- Properties Results -->
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Properties ({{ properties|length }})</h5>

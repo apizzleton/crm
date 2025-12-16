@@ -62,7 +62,6 @@
                                 <th>Units</th>
                                 <th>Class</th>
                                 <th>Year Built</th>
-                                <th>Deals</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -86,9 +85,6 @@
                                     <td>{{ property.units or '—' }}</td>
                                     <td>{{ property.property_class or '—' }}</td>
                                     <td>{{ property.year_built or '—' }}</td>
-                                    <td>
-                                        <span class="badge bg-light text-dark border">{{ property.deals|length }}</span>
-                                    </td>
                                     <td>
                                         <a href="{{ url_for('properties.edit', property_id=property.id) }}" class="btn btn-sm btn-outline-secondary">
                                             <i class="bi bi-pencil"></i>

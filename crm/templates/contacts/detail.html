@@ -72,7 +72,6 @@
                                     <th>Location</th>
                                     <th>Units</th>
                                     <th>Ownership %</th>
-                                    <th>Deals</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,9 +95,6 @@
                                         </td>
                                         <td>{{ ownership.property.units or '—' }}</td>
                                         <td>{{ ownership.ownership_percentage|default('—', true) }}{% if ownership.ownership_percentage %}%{% endif %}</td>
-                                        <td>
-                                            <span class="badge bg-info">{{ ownership.property.deals|length }}</span>
-                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -106,50 +102,6 @@
                     </div>
                 {% else %}
                     <p class="text-muted">No properties linked to this contact.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Deals -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-briefcase"></i> Deals</h5>
-            </div>
-            <div class="card-body">
-                {% if deal_roles %}
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Deal</th>
-                                    <th>Role</th>
-                                    <th>Property</th>
-                                    <th>Stage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for role in deal_roles %}
-                                    <tr>
-                                        <td><a href="{{ url_for('deals.detail', deal_id=role.deal.id) }}">{{ role.deal.deal_name }}</a></td>
-                                        <td><span class="badge bg-info">{{ role.role }}</span></td>
-                                        <td>
-                                            {% if role.deal.property %}
-                                                {{ role.deal.property.name or role.deal.property.address }}
-                                                {% if role.deal.property.city %}
-                                                    <div class="text-muted small">{{ role.deal.property.city }}{% if role.deal.property.state %}, {{ role.deal.property.state }}{% endif %}</div>
-                                                {% elif role.deal.property.state %}
-                                                    <div class="text-muted small">{{ role.deal.property.state }}</div>
-                                                {% endif %}
-                                            {% endif %}
-                                        </td>
-                                        <td><span class="badge bg-secondary">{{ role.deal.stage }}</span></td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p class="text-muted">No deals linked to this contact.</p>
                 {% endif %}
             </div>
         </div>
@@ -173,9 +125,6 @@
                                             <strong>{{ touchpoint.touchpoint_type }}</strong>
                                             <span class="text-muted ms-2">{{ touchpoint.occurred_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
                                         </div>
-                                        {% if touchpoint.deal %}
-                                            <small><a href="{{ url_for('deals.detail', deal_id=touchpoint.deal_id) }}">{{ touchpoint.deal.deal_name }}</a></small>
-                                        {% endif %}
                                     </div>
                                     <p class="mt-2 mb-0">{{ touchpoint.summary }}</p>
                                     {% if touchpoint.next_step %}
@@ -207,9 +156,6 @@
                             <div class="card-body p-2">
                                 <small class="text-muted">{{ task.due_date.strftime('%m/%d/%Y') }}</small>
                                 <p class="mb-1">{{ task.description }}</p>
-                                {% if task.deal %}
-                                    <small><a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a></small>
-                                {% endif %}
                                 <div class="mt-2">
                                     <form method="POST" action="{{ url_for('tasks.complete', task_id=task.id) }}" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-success">

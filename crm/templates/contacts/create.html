@@ -22,7 +22,15 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Role Type</label>
-                            <input type="text" name="role_type" class="form-control" placeholder="e.g., Broker, Owner">
+                            <select name="role_type" class="form-select">
+                                <option value="">-- Select Role --</option>
+                                <option value="Listing_Broker">Listing Broker</option>
+                                <option value="Owner">Owner</option>
+                                <option value="Property_Manager">Property Manager</option>
+                                <option value="Lender">Lender</option>
+                                <option value="Vendor">Vendor</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -35,6 +43,18 @@
                             <label class="form-label">Email</label>
                             <input type="email" name="email" class="form-control">
                         </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Properties (ownership)</label>
+                        <select name="properties" class="form-select" multiple size="4">
+                            {% for property in properties %}
+                            <option value="{{ property.id }}">
+                                {{ property.name or property.address }}{% if property.city %} - {{ property.city }}{% endif %}{% if property.units %} ({{ property.units }} units){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Hold Ctrl/Cmd to select multiple properties</small>
                     </div>
                     
                     <div class="mb-3">

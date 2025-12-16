@@ -2,11 +2,23 @@
 Touchpoint routes for logging interactions.
 """
 from datetime import datetime
-from flask import Blueprint, request, redirect, url_for, flash
+from flask import Blueprint, request, redirect, url_for, flash, render_template
 from crm.db import db
 from crm.models import Touchpoint, TouchpointType, Task, TaskPriority, Deal, Contact
 
 touchpoints_bp = Blueprint('touchpoints', __name__, url_prefix='/touchpoints')
+
+
+@touchpoints_bp.route('/')
+def index():
+    """List all touchpoints."""
+    # Eager load relationships for efficiency
+    touchpoints = Touchpoint.query.options(
+        db.joinedload(Touchpoint.contact),
+        db.joinedload(Touchpoint.deal)
+    ).order_by(Touchpoint.occurred_at.desc()).all()
+    
+    return render_template('touchpoints/list.html', touchpoints=touchpoints)
 
 
 @touchpoints_bp.route('/create', methods=['POST'])
@@ -107,4 +119,3 @@ def create():
         db.session.rollback()
         flash(f'Error logging touchpoint: {str(e)}', 'error')
         return redirect(request.referrer or url_for('dashboard.index'))
-

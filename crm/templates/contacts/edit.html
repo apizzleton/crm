@@ -22,7 +22,15 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Role Type</label>
-                            <input type="text" name="role_type" class="form-control" value="{{ contact.role_type or '' }}" placeholder="e.g., Broker, Owner">
+                            <select name="role_type" class="form-select">
+                                <option value="">-- Select Role --</option>
+                                <option value="Listing_Broker" {{ 'selected' if contact.role_type == 'Listing_Broker' else '' }}>Listing Broker</option>
+                                <option value="Owner" {{ 'selected' if contact.role_type == 'Owner' else '' }}>Owner</option>
+                                <option value="Property_Manager" {{ 'selected' if contact.role_type == 'Property_Manager' else '' }}>Property Manager</option>
+                                <option value="Lender" {{ 'selected' if contact.role_type == 'Lender' else '' }}>Lender</option>
+                                <option value="Vendor" {{ 'selected' if contact.role_type == 'Vendor' else '' }}>Vendor</option>
+                                <option value="Other" {{ 'selected' if contact.role_type == 'Other' else '' }}>Other</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -35,6 +43,18 @@
                             <label class="form-label">Email</label>
                             <input type="email" name="email" class="form-control" value="{{ contact.email or '' }}">
                         </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Properties (ownership)</label>
+                        <select name="properties" class="form-select" multiple size="4">
+                            {% for property in properties %}
+                            <option value="{{ property.id }}" {{ 'selected' if property.id in owned_property_ids else '' }}>
+                                {{ property.name or property.address }}{% if property.city %} - {{ property.city }}{% endif %}{% if property.units %} ({{ property.units }} units){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Hold Ctrl/Cmd to select multiple properties</small>
                     </div>
                     
                     <div class="mb-3">

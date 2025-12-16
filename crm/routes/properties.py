@@ -52,6 +52,27 @@ def create():
                 flash('Invalid year built format.', 'error')
                 return redirect(url_for('properties.create'))
         
+        # Parse estimated value fields
+        estimated_value_min_str = request.form.get('estimated_value_min', '').strip() or None
+        estimated_value_max_str = request.form.get('estimated_value_max', '').strip() or None
+        
+        estimated_value_min = None
+        estimated_value_max = None
+        
+        if estimated_value_min_str:
+            try:
+                estimated_value_min = Decimal(estimated_value_min_str)
+            except InvalidOperation:
+                flash('Invalid minimum estimated value format.', 'error')
+                return redirect(url_for('properties.create'))
+        
+        if estimated_value_max_str:
+            try:
+                estimated_value_max = Decimal(estimated_value_max_str)
+            except InvalidOperation:
+                flash('Invalid maximum estimated value format.', 'error')
+                return redirect(url_for('properties.create'))
+        
         property_obj = Property(
             name=name,
             address=address,
@@ -61,6 +82,8 @@ def create():
             units=units,
             year_built=year_built,
             property_class=property_class,
+            estimated_value_min=estimated_value_min,
+            estimated_value_max=estimated_value_max,
             notes=notes
         )
         
@@ -128,16 +151,12 @@ def detail(property_id):
     """Show property detail page."""
     property_obj = Property.query.get_or_404(property_id)
 
-    # Get related deals
-    deals = property_obj.deals
-
     # Get owners and all contacts for dropdown
     owners = property_obj.owners
     all_contacts = Contact.query.order_by(Contact.name).all()
 
     return render_template('properties/detail.html',
                          property=property_obj,
-                         deals=deals,
                          owners=owners,
                          all_contacts=all_contacts)
 
@@ -154,6 +173,7 @@ def edit(property_id):
     try:
         name = request.form.get('name', '').strip() or None
         address = request.form.get('address', '').strip() or None
+        print(f"DEBUG: name='{name}', address='{address}'")
         city = request.form.get('city', '').strip() or None
         state = request.form.get('state', '').strip() or None
         zip_code = request.form.get('zip_code', '').strip() or None
@@ -186,6 +206,27 @@ def edit(property_id):
                 flash('Invalid year built format.', 'error')
                 return redirect(url_for('properties.edit', property_id=property_id))
 
+        # Parse estimated value fields
+        estimated_value_min_str = request.form.get('estimated_value_min', '').strip() or None
+        estimated_value_max_str = request.form.get('estimated_value_max', '').strip() or None
+        
+        estimated_value_min = None
+        estimated_value_max = None
+        
+        if estimated_value_min_str:
+            try:
+                estimated_value_min = Decimal(estimated_value_min_str)
+            except InvalidOperation:
+                flash('Invalid minimum estimated value format.', 'error')
+                return redirect(url_for('properties.edit', property_id=property_id))
+        
+        if estimated_value_max_str:
+            try:
+                estimated_value_max = Decimal(estimated_value_max_str)
+            except InvalidOperation:
+                flash('Invalid maximum estimated value format.', 'error')
+                return redirect(url_for('properties.edit', property_id=property_id))
+
         # Update property
         property_obj.name = name
         property_obj.address = address
@@ -195,6 +236,8 @@ def edit(property_id):
         property_obj.units = units
         property_obj.year_built = year_built
         property_obj.property_class = property_class
+        property_obj.estimated_value_min = estimated_value_min
+        property_obj.estimated_value_max = estimated_value_max
         property_obj.notes = notes
 
         db.session.commit()
@@ -214,11 +257,6 @@ def delete(property_id):
     property_obj = Property.query.get_or_404(property_id)
 
     try:
-        # Check if property has associated deals
-        if property_obj.deals:
-            flash('Cannot delete property that has associated deals.', 'error')
-            return redirect(url_for('properties.detail', property_id=property_id))
-
         db.session.delete(property_obj)
         db.session.commit()
 

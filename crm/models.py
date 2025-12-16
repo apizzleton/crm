@@ -89,6 +89,8 @@ class Property(db.Model):
     units = db.Column(db.Integer)
     year_built = db.Column(db.Integer)
     property_class = db.Column(db.String(10))  # A, B, C, etc.
+    estimated_value_min = db.Column(db.Numeric(15, 2))  # Minimum estimated value
+    estimated_value_max = db.Column(db.Numeric(15, 2))  # Maximum estimated value
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

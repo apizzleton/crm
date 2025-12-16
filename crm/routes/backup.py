@@ -6,7 +6,7 @@ from crm.db import db
 import os
 import csv
 from io import StringIO
-from crm.models import Deal, Contact, Property, Task, Touchpoint
+from crm.models import Contact, Property, Task, Touchpoint
 
 backup_bp = Blueprint('backup', __name__, url_prefix='/backup')
 
@@ -22,36 +22,6 @@ def download_db():
     if db_path.exists():
         return send_file(str(db_path), as_attachment=True, download_name='crm_backup.db')
     return "Database file not found", 404
-
-
-@backup_bp.route('/export_csv')
-def export_csv():
-    """Export all data as CSV files in a zip archive."""
-    # For simplicity, we'll export deals, contacts, and properties as separate CSV downloads
-    # In a production app, you'd zip these together
-    
-    # Export deals
-    deals = Deal.query.all()
-    deals_csv = StringIO()
-    writer = csv.writer(deals_csv)
-    writer.writerow(['ID', 'Deal Name', 'Property Address', 'Stage', 'Asking Price', 'Target Close', 'Created'])
-    for deal in deals:
-        property_addr = deal.property.address if deal.property else ''
-        writer.writerow([
-            deal.id,
-            deal.deal_name,
-            property_addr,
-            deal.stage,
-            deal.asking_price or '',
-            deal.target_close_date.strftime('%Y-%m-%d') if deal.target_close_date else '',
-            deal.created_at.strftime('%Y-%m-%d %H:%M:%S')
-        ])
-    
-    return Response(
-        deals_csv.getvalue(),
-        mimetype='text/csv',
-        headers={'Content-Disposition': 'attachment; filename=deals_export.csv'}
-    )
 
 
 @backup_bp.route('/export_contacts')
@@ -77,5 +47,35 @@ def export_contacts():
         contacts_csv.getvalue(),
         mimetype='text/csv',
         headers={'Content-Disposition': 'attachment; filename=contacts_export.csv'}
+    )
+
+
+@backup_bp.route('/export_properties')
+def export_properties():
+    """Export properties as CSV."""
+    properties = Property.query.all()
+    properties_csv = StringIO()
+    writer = csv.writer(properties_csv)
+    writer.writerow(['ID', 'Name', 'Address', 'City', 'State', 'Zip', 'Units', 'Year Built', 'Class', 'Est. Value Min', 'Est. Value Max', 'Created'])
+    for prop in properties:
+        writer.writerow([
+            prop.id,
+            prop.name or '',
+            prop.address or '',
+            prop.city or '',
+            prop.state or '',
+            prop.zip_code or '',
+            prop.units or '',
+            prop.year_built or '',
+            prop.property_class or '',
+            prop.estimated_value_min or '',
+            prop.estimated_value_max or '',
+            prop.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    return Response(
+        properties_csv.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=properties_export.csv'}
     )
 

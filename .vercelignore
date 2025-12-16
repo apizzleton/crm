@@ -1,43 +1,12 @@
-# Exclude local development files
+# Ignore local development files
+instance/
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.git
-.mypy_cache
-.pytest_cache
-.hypothesis
-
-# Exclude local database
-instance/
 *.db
-*.sqlite
-*.sqlite3
-
-# Exclude development scripts
+.env
+.git/
+.gitignore
+*.md
 START_APP.bat
 keep_alive.py
-
-# Exclude IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Exclude OS files
-.DS_Store
-Thumbs.db

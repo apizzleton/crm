@@ -4,7 +4,7 @@ Task routes for CRUD operations.
 from datetime import date, datetime
 from flask import Blueprint, request, redirect, url_for, flash, render_template
 from crm.db import db
-from crm.models import Task, TaskStatus, TaskPriority, Deal, Contact
+from crm.models import Task, TaskStatus, TaskPriority, Contact
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix='/tasks')
 
@@ -44,11 +44,7 @@ def create():
             flash('Invalid date format.', 'error')
             return redirect(request.referrer or url_for('dashboard.index'))
         
-        # Validate deal/contact exist if provided
-        if deal_id and not Deal.query.get(deal_id):
-            flash('Invalid deal selected.', 'error')
-            return redirect(request.referrer or url_for('dashboard.index'))
-        
+        # Validate contact exists if provided
         if contact_id and not Contact.query.get(contact_id):
             flash('Invalid contact selected.', 'error')
             return redirect(request.referrer or url_for('dashboard.index'))

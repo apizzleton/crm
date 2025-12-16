@@ -133,40 +133,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Related Deals</h5>
-            </div>
-            <div class="card-body">
-                {% if deals %}
-                <div class="list-group list-group-flush">
-                    {% for deal in deals %}
-                    <a href="{{ url_for('deals.detail', deal_id=deal.id) }}" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">{{ deal.deal_name }}</h6>
-                            <small class="badge bg-{{ 'success' if deal.stage == 'Closed_Won' else 'secondary' }}">{{ deal.stage.replace('_', ' ') }}</small>
-                        </div>
-                        {% if deal.asking_price %}
-                        <p class="mb-1">${{ "{:,.0f}".format(deal.asking_price) }}</p>
-                        {% endif %}
-                        <small class="text-muted">{{ deal.created_at.strftime('%b %d, %Y') }}</small>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="text-muted mb-0">No deals associated with this property.</p>
-                {% endif %}
-            </div>
-            {% if not deals %}
-            <div class="card-footer">
-                <a href="{{ url_for('deals.create') }}?property_id={{ property.id }}" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-plus-circle"></i> Create Deal
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
+
 </div>
 
 <!-- Add Owner Modal -->
@@ -229,20 +196,12 @@
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this property?</p>
-                {% if deals %}
-                <div class="alert alert-warning">
-                    <strong>Warning:</strong> This property has {{ deals|length }} associated deal{{ 's' if deals|length != 1 else '' }}.
-                    You cannot delete a property that has associated deals.
-                </div>
-                {% endif %}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                {% if not deals %}
                 <form method="POST" action="{{ url_for('properties.delete', property_id=property.id) }}" style="display: inline;">
                     <button type="submit" class="btn btn-danger">Delete Property</button>
                 </form>
-                {% endif %}
             </div>
         </div>
     </div>
