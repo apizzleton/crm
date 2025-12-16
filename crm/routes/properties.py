@@ -138,6 +138,11 @@ def list_properties():
         query = query.filter(Property.units <= max_units)
 
     properties = query.order_by(Property.created_at.desc()).all()
+
+    # Add owner information to each property
+    for property in properties:
+        property.owners_list = [ownership.contact.name for ownership in property.owners]
+
     filters = {
         'city': city,
         'min_units': min_units_str,
