@@ -19,17 +19,19 @@ def init_db(app: Flask):
         # Create all tables
         db.create_all()
 
-        # SQLite-specific migration helpers (skip for PostgreSQL)
+        # Database migration helpers - ensure new columns exist on existing databases
         db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
         is_sqlite = db_url.startswith('sqlite')
         
+        # Run column migrations for both SQLite and PostgreSQL
+        _ensure_column(db.engine, 'properties', 'name', 'VARCHAR(200)')
+        _ensure_column(db.engine, 'properties', 'estimated_value_min', 'NUMERIC(15, 2)')
+        _ensure_column(db.engine, 'properties', 'estimated_value_max', 'NUMERIC(15, 2)')
+        _ensure_column(db.engine, 'properties', 'buyer_interest', 'INTEGER')
+        _ensure_column(db.engine, 'properties', 'seller_motivation', 'INTEGER')
+        
+        # SQLite-specific migrations
         if is_sqlite:
-            # Ensure new columns exist on existing databases without migrations.
-            _ensure_column(db.engine, 'properties', 'name', 'VARCHAR(200)')
-            _ensure_column(db.engine, 'properties', 'estimated_value_min', 'NUMERIC(15, 2)')
-            _ensure_column(db.engine, 'properties', 'estimated_value_max', 'NUMERIC(15, 2)')
-            _ensure_column(db.engine, 'properties', 'buyer_interest', 'INTEGER')
-            _ensure_column(db.engine, 'properties', 'seller_motivation', 'INTEGER')
             _ensure_properties_address_nullable(db.engine)
             with db.engine.connect() as conn:
                 conn.execute(
