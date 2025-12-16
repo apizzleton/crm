@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Properties - Multifamily CRM{% endblock %}
+
+{% block content %}
+{% set _filters = filters if filters is defined else {} %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1><i class="bi bi-building"></i> Properties</h1>
+        <a href="{{ url_for('properties.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Property
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form class="row g-3 mb-4" method="get">
+                    <div class="col-md-4">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text"
+                               class="form-control"
+                               id="city"
+                               name="city"
+                               value="{{ _filters.city|default('') }}"
+                               placeholder="e.g. Austin">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="min_units" class="form-label">Min Units</label>
+                        <input type="number"
+                               class="form-control"
+                               id="min_units"
+                               name="min_units"
+                               value="{{ _filters.min_units|default('') }}"
+                               min="0"
+                               placeholder="e.g. 50">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="max_units" class="form-label">Max Units</label>
+                        <input type="number"
+                               class="form-control"
+                               id="max_units"
+                               name="max_units"
+                               value="{{ _filters.max_units|default('') }}"
+                               min="0"
+                               placeholder="e.g. 200">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        <a href="{{ url_for('properties.list_properties') }}" class="btn btn-outline-secondary w-100">Reset</a>
+                    </div>
+                </form>
+                {% if properties %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Address</th>
+                                <th>Units</th>
+                                <th>Class</th>
+                                <th>Year Built</th>
+                                <th>Deals</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for property in properties %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('properties.detail', property_id=property.id) }}">{{ property.name or property.address }}</a>
+                                    </td>
+                                    <td>
+                                        {% set address_line = property.address %}
+                                        {% set location_parts = [] %}
+                                        {% if property.city %}{% set _ = location_parts.append(property.city) %}{% endif %}
+                                        {% if property.state %}{% set _ = location_parts.append(property.state) %}{% endif %}
+                                        {% if property.zip_code %}{% set _ = location_parts.append(property.zip_code) %}{% endif %}
+                                        {{ address_line or '—' }}
+                                        {% if location_parts %}
+                                        <div class="text-muted small">{{ location_parts|join(', ') }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ property.units or '—' }}</td>
+                                    <td>{{ property.property_class or '—' }}</td>
+                                    <td>{{ property.year_built or '—' }}</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">{{ property.deals|length }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('properties.edit', property_id=property.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-building display-1 text-muted mb-3"></i>
+                    <h3 class="text-muted">No Properties Yet</h3>
+                    <p class="text-muted mb-4">Get started by adding your first property.</p>
+                    <a href="{{ url_for('properties.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Your First Property
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

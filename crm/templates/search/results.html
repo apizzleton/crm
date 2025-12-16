@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Search - Multifamily CRM{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="bi bi-search"></i> Search</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('search.search') }}">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control form-control-lg" 
+                               placeholder="Search deals, contacts, properties..." 
+                               value="{{ query }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if query %}
+<div class="row">
+    <!-- Deals Results -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Deals ({{ deals|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if deals %}
+                    {% for deal in deals %}
+                        <div class="card mb-2">
+                            <div class="card-body p-2">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('deals.detail', deal_id=deal.id) }}">{{ deal.deal_name }}</a>
+                                </h6>
+                                <small class="text-muted">{{ deal.stage }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No deals found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacts Results -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Contacts ({{ contacts|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if contacts %}
+                    {% for contact in contacts %}
+                        <div class="card mb-2">
+                            <div class="card-body p-2">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('contacts.detail', contact_id=contact.id) }}">{{ contact.name }}</a>
+                                </h6>
+                                {% if contact.company %}
+                                    <small class="text-muted">{{ contact.company }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No contacts found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Properties Results -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Properties ({{ properties|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if properties %}
+                    {% for property in properties %}
+                        <div class="card mb-2">
+                            <div class="card-body p-2">
+                                <h6 class="mb-1">{{ property.name or property.address }}</h6>
+                                <small class="text-muted">
+                                    {{ property.address }}
+                                    {% if property.city %}
+                                        <br>{{ property.city }}{% if property.state %}, {{ property.state }}{% endif %}{% if property.zip_code %} {{ property.zip_code }}{% endif %}
+                                    {% elif property.state %}
+                                        <br>{{ property.state }}{% if property.zip_code %} {{ property.zip_code }}{% endif %}
+                                    {% elif property.zip_code %}
+                                        <br>{{ property.zip_code }}
+                                    {% endif %}
+                                </small>
+                                {% if property.units %}
+                                    <div class="mt-1">
+                                        <small><strong>{{ property.units }}</strong> units</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No properties found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Create Task - Multifamily CRM{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4"><i class="bi bi-plus-circle"></i> Create New Task</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('tasks.create') }}">
+                    {% if deal_id %}
+                        <input type="hidden" name="deal_id" value="{{ deal_id }}">
+                    {% endif %}
+                    {% if contact_id %}
+                        <input type="hidden" name="contact_id" value="{{ contact_id }}">
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Due Date *</label>
+                        <input type="date" name="due_date" class="form-control" value="{{ today.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Priority</label>
+                        <select name="priority" class="form-select">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> Create Task
+                        </button>
+                        <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

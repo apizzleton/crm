@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}{{ contact.name }} - Multifamily CRM{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1>{{ contact.name }}</h1>
+        <a href="{{ url_for('contacts.edit', contact_id=contact.id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Contact Info -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Contact Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Company:</strong> {{ contact.company or '—' }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Role:</strong> {{ contact.role_type or '—' }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Phone:</strong> {{ contact.phone or '—' }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Email:</strong> {{ contact.email or '—' }}
+                    </div>
+                </div>
+                {% if contact.tags %}
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>Tags:</strong>
+                            {% for tag in contact.tags.split(',') %}
+                                <span class="badge bg-secondary me-1">{{ tag.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                {% if contact.notes %}
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Notes:</strong>
+                            <p class="mt-2">{{ contact.notes }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Owned Properties -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-building"></i> Owned Properties</h5>
+            </div>
+            <div class="card-body">
+                {% if property_ownerships %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Location</th>
+                                    <th>Units</th>
+                                    <th>Ownership %</th>
+                                    <th>Deals</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ownership in property_ownerships %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('properties.detail', property_id=ownership.property.id) }}">
+                                                {{ ownership.property.name or ownership.property.address }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if ownership.property.city and ownership.property.state %}
+                                                {{ ownership.property.city }}, {{ ownership.property.state }}
+                                            {% elif ownership.property.city %}
+                                                {{ ownership.property.city }}
+                                            {% elif ownership.property.state %}
+                                                {{ ownership.property.state }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ ownership.property.units or '—' }}</td>
+                                        <td>{{ ownership.ownership_percentage|default('—', true) }}{% if ownership.ownership_percentage %}%{% endif %}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ ownership.property.deals|length }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No properties linked to this contact.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Deals -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-briefcase"></i> Deals</h5>
+            </div>
+            <div class="card-body">
+                {% if deal_roles %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Deal</th>
+                                    <th>Role</th>
+                                    <th>Property</th>
+                                    <th>Stage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for role in deal_roles %}
+                                    <tr>
+                                        <td><a href="{{ url_for('deals.detail', deal_id=role.deal.id) }}">{{ role.deal.deal_name }}</a></td>
+                                        <td><span class="badge bg-info">{{ role.role }}</span></td>
+                                        <td>
+                                            {% if role.deal.property %}
+                                                {{ role.deal.property.name or role.deal.property.address }}
+                                                {% if role.deal.property.city %}
+                                                    <div class="text-muted small">{{ role.deal.property.city }}{% if role.deal.property.state %}, {{ role.deal.property.state }}{% endif %}</div>
+                                                {% elif role.deal.property.state %}
+                                                    <div class="text-muted small">{{ role.deal.property.state }}</div>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td><span class="badge bg-secondary">{{ role.deal.stage }}</span></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No deals linked to this contact.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Touchpoints -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Touchpoints</h5>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#logTouchpointModal">
+                    <i class="bi bi-plus"></i> Log Touchpoint
+                </button>
+            </div>
+            <div class="card-body">
+                {% if touchpoints %}
+                    <div class="timeline">
+                        {% for touchpoint in touchpoints %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>{{ touchpoint.touchpoint_type }}</strong>
+                                            <span class="text-muted ms-2">{{ touchpoint.occurred_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                                        </div>
+                                        {% if touchpoint.deal %}
+                                            <small><a href="{{ url_for('deals.detail', deal_id=touchpoint.deal_id) }}">{{ touchpoint.deal.deal_name }}</a></small>
+                                        {% endif %}
+                                    </div>
+                                    <p class="mt-2 mb-0">{{ touchpoint.summary }}</p>
+                                    {% if touchpoint.next_step %}
+                                        <div class="mt-2">
+                                            <small class="text-muted"><strong>Next Step:</strong> {{ touchpoint.next_step }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No touchpoints logged yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Open Tasks -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Open Tasks</h5>
+            </div>
+            <div class="card-body">
+                {% if open_tasks %}
+                    {% for task in open_tasks %}
+                        <div class="card mb-2 {% if task.is_overdue %}task-overdue{% elif task.is_due_today %}task-today{% endif %}">
+                            <div class="card-body p-2">
+                                <small class="text-muted">{{ task.due_date.strftime('%m/%d/%Y') }}</small>
+                                <p class="mb-1">{{ task.description }}</p>
+                                {% if task.deal %}
+                                    <small><a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a></small>
+                                {% endif %}
+                                <div class="mt-2">
+                                    <form method="POST" action="{{ url_for('tasks.complete', task_id=task.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No open tasks.</p>
+                {% endif %}
+                <a href="{{ url_for('tasks.create') }}?contact_id={{ contact.id }}" class="btn btn-sm btn-primary w-100 mt-2">
+                    <i class="bi bi-plus"></i> Add Task
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Touchpoint Modal -->
+<div class="modal fade" id="logTouchpointModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Touchpoint</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('touchpoints.create') }}">
+                <input type="hidden" name="contact_id" value="{{ contact.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <select name="touchpoint_type" class="form-select" required>
+                            <option value="Call">Call</option>
+                            <option value="Email">Email</option>
+                            <option value="Text">Text</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Note">Note</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date & Time</label>
+                        <input type="datetime-local" name="occurred_at" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Summary</label>
+                        <textarea name="summary" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Next Step (optional)</label>
+                        <textarea name="next_step" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="create_task" value="yes" id="createTaskCheck">
+                            <label class="form-check-label" for="createTaskCheck">
+                                Create follow-up task
+                            </label>
+                        </div>
+                    </div>
+                    <div id="taskFields" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">Task Description</label>
+                            <input type="text" name="task_description" class="form-control" placeholder="Leave blank to use 'Next Step'">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Task Due Date</label>
+                            <input type="date" name="task_due_date" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Task Priority</label>
+                            <select name="task_priority" class="form-select">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Log Touchpoint</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('createTaskCheck').addEventListener('change', function() {
+        document.getElementById('taskFields').style.display = this.checked ? 'block' : 'none';
+    });
+</script>
+{% endblock %}
+{% endblock %}
+

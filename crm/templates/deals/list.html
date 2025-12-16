@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Deals - Multifamily CRM{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1><i class="bi bi-briefcase"></i> Deals Pipeline</h1>
+        <a href="{{ url_for('deals.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> New Deal
+        </a>
+    </div>
+</div>
+
+<!-- Pipeline View -->
+<div class="row">
+    {% for stage in stages %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 border-0 shadow-none bg-transparent">
+                <div class="card-header border-0 bg-transparent px-0 pb-2 pt-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-uppercase text-muted fw-bold" style="font-size: 0.8rem;">{{ stage.value }}</h6>
+                        <span class="badge bg-light text-dark border">{{ deals_by_stage[stage.value]|length }}</span>
+                    </div>
+                </div>
+                <div class="card-body p-0 pipeline-body">
+                    {% for deal in deals_by_stage[stage.value] %}
+                        <div class="card mb-2 shadow-sm border-0">
+                            <div class="card-body p-3">
+                                <h6 class="card-title mb-1">
+                                    <a href="{{ url_for('deals.detail', deal_id=deal.id) }}" class="text-decoration-none text-dark">{{ deal.deal_name }}</a>
+                                </h6>
+                                <small class="text-muted d-block mb-2">
+                                    {% if deal.property %}
+                                        <i class="bi bi-geo-alt"></i> {{ deal.property.name or deal.property.address }}
+                                    {% endif %}
+                                </small>
+                                {% if deal.asking_price %}
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-primary fw-bold">${{ "{:,.0f}".format(deal.asking_price) }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if deals_by_stage[stage.value]|length == 0 %}
+                        <div class="text-center py-4 border rounded-3 bg-white text-muted">
+                            <small>No deals</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- List View -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">All Deals</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Deal Name</th>
+                                <th>Property</th>
+                                <th>Stage</th>
+                                <th>Asking Price</th>
+                                <th>Target Close</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for deal in deals %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('deals.detail', deal_id=deal.id) }}">{{ deal.deal_name }}</a>
+                                    </td>
+                                    <td>
+                                        {% if deal.property %}
+                                            {{ deal.property.name or deal.property.address }}
+                                            {% if deal.property.city %}
+                                                <div class="text-muted small">{{ deal.property.city }}{% if deal.property.state %}, {{ deal.property.state }}{% endif %}</div>
+                                            {% elif deal.property.state %}
+                                                <div class="text-muted small">{{ deal.property.state }}</div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary stage-badge">{{ deal.stage }}</span>
+                                    </td>
+                                    <td>
+                                        {% if deal.asking_price %}
+                                            ${{ "{:,.0f}".format(deal.asking_price) }}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if deal.target_close_date %}
+                                            {{ deal.target_close_date.strftime('%m/%d/%Y') }}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('deals.edit', deal_id=deal.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

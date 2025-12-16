@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Multifamily CRM{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 text-danger"><i class="bi bi-exclamation-triangle"></i> Overdue Tasks</h5>
+            </div>
+            <div class="card-body">
+                {% if overdue_tasks %}
+                    {% for task in overdue_tasks %}
+                        <div class="card mb-2 task-overdue bg-light border-0">
+                            <div class="card-body p-3">
+                                <small class="text-muted">{{ task.due_date.strftime('%m/%d/%Y') }}</small>
+                                <p class="mb-1">{{ task.description }}</p>
+                                {% if task.deal %}
+                                    <small><a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a></small>
+                                {% elif task.contact %}
+                                    <small><a href="{{ url_for('contacts.detail', contact_id=task.contact_id) }}">{{ task.contact.name }}</a></small>
+                                {% endif %}
+                                <div class="mt-2">
+                                    <form method="POST" action="{{ url_for('tasks.complete', task_id=task.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check"></i> Complete
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('tasks.snooze', task_id=task.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-secondary">
+                                            <i class="bi bi-pause"></i> Snooze
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No overdue tasks. Great job!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 text-warning"><i class="bi bi-calendar-day"></i> Today's Tasks</h5>
+            </div>
+            <div class="card-body">
+                {% if today_tasks %}
+                    {% for task in today_tasks %}
+                        <div class="card mb-2 task-today bg-light border-0">
+                            <div class="card-body p-3">
+                                <p class="mb-1">{{ task.description }}</p>
+                                {% if task.deal %}
+                                    <small><a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a></small>
+                                {% elif task.contact %}
+                                    <small><a href="{{ url_for('contacts.detail', contact_id=task.contact_id) }}">{{ task.contact.name }}</a></small>
+                                {% endif %}
+                                <div class="mt-2">
+                                    <form method="POST" action="{{ url_for('tasks.complete', task_id=task.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check"></i> Complete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No tasks due today.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 text-primary"><i class="bi bi-plus-circle"></i> Quick Add Task</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <a href="{{ url_for('tasks.create') }}" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-plus"></i> Create Task
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if upcoming_tasks %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-primary"><i class="bi bi-calendar-week"></i> Upcoming Tasks (Next 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for task in upcoming_tasks %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card task-upcoming bg-light border-0 h-100">
+                                <div class="card-body p-3">
+                                    <small class="text-muted">{{ task.due_date.strftime('%m/%d/%Y') }}</small>
+                                    <p class="mb-1">{{ task.description }}</p>
+                                    {% if task.deal %}
+                                        <small><a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a></small>
+                                    {% elif task.contact %}
+                                        <small><a href="{{ url_for('contacts.detail', contact_id=task.contact_id) }}">{{ task.contact.name }}</a></small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
