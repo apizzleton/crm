@@ -97,8 +97,12 @@ h1, h2, h3, h4, h5, h6 {
     vertical-align: middle;
 }
 
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(59, 130, 246, 0.03); /* Very light primary color */
+}
+
 .table-hover tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: rgba(59, 130, 246, 0.08); /* Slightly more opaque primary on hover */
 }
 
 /* Buttons */

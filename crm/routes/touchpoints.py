@@ -17,7 +17,12 @@ def index():
         db.joinedload(Touchpoint.contact)
     ).order_by(Touchpoint.occurred_at.desc()).all()
     
-    return render_template('touchpoints/list.html', touchpoints=touchpoints)
+    # Get all contacts for the log touchpoint modal
+    contacts = Contact.query.order_by(Contact.name).all()
+    
+    return render_template('touchpoints/list.html', 
+                         touchpoints=touchpoints,
+                         contacts=contacts)
 
 
 @touchpoints_bp.route('/create', methods=['POST'])
