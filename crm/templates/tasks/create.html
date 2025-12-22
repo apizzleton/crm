@@ -10,16 +10,30 @@
         <div class="card">
             <div class="card-body">
                 <form method="POST" action="{{ url_for('tasks.create') }}">
-                    <div class="mb-3">
-                        <label class="form-label">Contact (Optional)</label>
-                        <select name="contact_id" class="form-select">
-                            <option value="">-- Select Contact --</option>
-                            {% for contact in contacts %}
-                            <option value="{{ contact.id }}" {% if contact_id == contact.id %}selected{% endif %}>
-                                {{ contact.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contact (Optional)</label>
+                            <select name="contact_id" class="form-select">
+                                <option value="">-- Select Contact --</option>
+                                {% for contact in contacts %}
+                                <option value="{{ contact.id }}" {% if contact_id == contact.id %}selected{% endif %}>
+                                    {{ contact.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Deal (Optional)</label>
+                            <select name="deal_id" class="form-select">
+                                <option value="">-- Select Deal --</option>
+                                {% for deal in deals %}
+                                <option value="{{ deal.id }}" {% if deal_id == deal.id %}selected{% endif %}>
+                                    {{ deal.deal_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-3">

@@ -200,6 +200,7 @@ class Task(db.Model):
     priority = db.Column(db.String(20), default=TaskPriority.MEDIUM.value)
     deal_id = db.Column(db.Integer, db.ForeignKey('deals.id'))
     contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'))
+    property_id = db.Column(db.Integer, db.ForeignKey('properties.id'))
     completed_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -207,6 +208,7 @@ class Task(db.Model):
     # Relationships
     deal = db.relationship('Deal', back_populates='tasks')
     contact = db.relationship('Contact', back_populates='tasks')
+    property = db.relationship('Property')
     
     def __repr__(self):
         return f'<Task {self.description[:50]}>'

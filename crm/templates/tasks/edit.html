@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Task - Multifamily CRM{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4"><i class="bi bi-pencil-square"></i> Edit Task</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('tasks.edit', task_id=task.id) }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contact (Optional)</label>
+                            <select name="contact_id" class="form-select">
+                                <option value="">-- Select Contact --</option>
+                                {% for contact in contacts %}
+                                <option value="{{ contact.id }}" {% if task.contact_id == contact.id %}selected{% endif %}>
+                                    {{ contact.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Deal (Optional)</label>
+                            <select name="deal_id" class="form-select">
+                                <option value="">-- Select Deal --</option>
+                                {% for deal in deals %}
+                                <option value="{{ deal.id }}" {% if task.deal_id == deal.id %}selected{% endif %}>
+                                    {{ deal.deal_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Property (Optional)</label>
+                        <select name="property_id" class="form-select">
+                            <option value="">-- Select Property --</option>
+                            {% for prop in properties %}
+                            <option value="{{ prop.id }}" {% if task.property_id == prop.id %}selected{% endif %}>
+                                {{ prop.name or prop.address }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea name="description" class="form-control" rows="3" required>{{ task.description }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Due Date *</label>
+                            <input type="date" name="due_date" class="form-control" value="{{ task.due_date.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option value="Low" {% if task.priority == 'Low' %}selected{% endif %}>Low</option>
+                                <option value="Medium" {% if task.priority == 'Medium' %}selected{% endif %}>Medium</option>
+                                <option value="High" {% if task.priority == 'High' %}selected{% endif %}>High</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Open" {% if task.status == 'Open' %}selected{% endif %}>Open</option>
+                                <option value="Snoozed" {% if task.status == 'Snoozed' %}selected{% endif %}>Snoozed</option>
+                                <option value="Done" {% if task.status == 'Done' %}selected{% endif %}>Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                        <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
