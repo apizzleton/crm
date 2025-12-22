@@ -208,7 +208,7 @@ class Task(db.Model):
     # Relationships
     deal = db.relationship('Deal', back_populates='tasks')
     contact = db.relationship('Contact', back_populates='tasks')
-    property = db.relationship('Property')
+    related_property = db.relationship('Property')
     
     def __repr__(self):
         return f'<Task {self.description[:50]}>'

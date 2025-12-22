@@ -31,4 +31,3 @@ def index():
                          tasks=tasks,
                          today=today,
                          current_status=status_filter)
-

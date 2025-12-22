@@ -92,10 +92,10 @@
                                     {% if task.deal %}
                                         <div class="mb-1"><i class="bi bi-briefcase"></i> <a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a></div>
                                     {% endif %}
-                                    {% if task.property %}
-                                        <div class="mb-1"><i class="bi bi-building"></i> <a href="{{ url_for('properties.detail', property_id=task.property_id) }}">{{ task.property.name or task.property.address }}</a></div>
+                                    {% if task.related_property %}
+                                        <div class="mb-1"><i class="bi bi-building"></i> <a href="{{ url_for('properties.detail', property_id=task.property_id) }}">{{ task.related_property.name or task.related_property.address }}</a></div>
                                     {% endif %}
-                                    {% if not task.contact and not task.deal and not task.property %}
+                                    {% if not task.contact and not task.deal and not task.related_property %}
                                         <span class="text-muted">-</span>
                                     {% endif %}
                                 </td>
