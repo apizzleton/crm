@@ -49,6 +49,24 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary-color) !important;
 }
 
+/* Nav Pills - Task Filters */
+.nav-pills .nav-link {
+    color: #64748b;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.nav-pills .nav-link:hover {
+    color: var(--primary-color);
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.nav-pills .nav-link.active {
+    color: #ffffff !important;
+    background-color: var(--primary-color) !important;
+}
+
 /* Cards */
 .card {
     border: none;
