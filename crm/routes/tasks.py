@@ -4,7 +4,7 @@ Task routes for CRUD operations.
 from datetime import date, datetime
 from flask import Blueprint, request, redirect, url_for, flash, render_template
 from crm.db import db
-from crm.models import Task, TaskStatus, TaskPriority, Deal, Contact
+from crm.models import Task, TaskStatus, TaskPriority, Deal, Contact, Property
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix='/tasks')
 
