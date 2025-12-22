@@ -2,6 +2,7 @@
 Touchpoint routes for logging interactions.
 """
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from flask import Blueprint, request, redirect, url_for, flash, render_template
 from crm.db import db
 from crm.models import Touchpoint, TouchpointType, Task, TaskPriority, Contact
@@ -83,19 +84,20 @@ def create():
         
         # Create follow-up task if requested
         if create_task:
+            # Default task due date to 6 months after touchpoint date if not provided
             if not task_due_date_str:
-                flash('Task due date is required when creating a task.', 'error')
-                return redirect(request.referrer or url_for('dashboard.index'))
+                # Calculate 6 months after touchpoint date
+                task_due_date = (occurred_at + relativedelta(months=6)).date()
+            else:
+                try:
+                    task_due_date = datetime.strptime(task_due_date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    flash('Invalid task due date format.', 'error')
+                    return redirect(request.referrer or url_for('dashboard.index'))
             
             if not task_description:
                 # Use next_step or summary as default
                 task_description = next_step or summary[:100]
-            
-            try:
-                task_due_date = datetime.strptime(task_due_date_str, '%Y-%m-%d').date()
-            except ValueError:
-                flash('Invalid task due date format.', 'error')
-                return redirect(request.referrer or url_for('dashboard.index'))
             
             task = Task(
                 description=task_description,

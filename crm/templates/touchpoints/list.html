@@ -146,8 +146,68 @@
 
 {% block extra_js %}
 <script>
+    // Show/hide task fields when checkbox is toggled
     document.getElementById('createTaskCheck').addEventListener('change', function() {
-        document.getElementById('taskFields').style.display = this.checked ? 'block' : 'none';
+        const taskFields = document.getElementById('taskFields');
+        taskFields.style.display = this.checked ? 'block' : 'none';
+        
+        // If checked, set default due date to 6 months after touchpoint date
+        if (this.checked) {
+            const occurredAtInput = document.querySelector('input[name="occurred_at"]');
+            const taskDueDateInput = document.querySelector('input[name="task_due_date"]');
+            
+            if (occurredAtInput && taskDueDateInput && !taskDueDateInput.value) {
+                // Get the touchpoint date
+                const occurredAtValue = occurredAtInput.value;
+                if (occurredAtValue) {
+                    // Parse the datetime-local value (format: YYYY-MM-DDTHH:mm)
+                    const touchpointDate = new Date(occurredAtValue);
+                    
+                    // Add 6 months
+                    const sixMonthsLater = new Date(touchpointDate);
+                    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+                    
+                    // Format as YYYY-MM-DD for date input
+                    const year = sixMonthsLater.getFullYear();
+                    const month = String(sixMonthsLater.getMonth() + 1).padStart(2, '0');
+                    const day = String(sixMonthsLater.getDate()).padStart(2, '0');
+                    const formattedDate = `${year}-${month}-${day}`;
+                    
+                    taskDueDateInput.value = formattedDate;
+                } else {
+                    // If no touchpoint date set, use current date + 6 months
+                    const now = new Date();
+                    const sixMonthsLater = new Date(now);
+                    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+                    
+                    const year = sixMonthsLater.getFullYear();
+                    const month = String(sixMonthsLater.getMonth() + 1).padStart(2, '0');
+                    const day = String(sixMonthsLater.getDate()).padStart(2, '0');
+                    const formattedDate = `${year}-${month}-${day}`;
+                    
+                    taskDueDateInput.value = formattedDate;
+                }
+            }
+        }
+    });
+    
+    // Also update task due date when touchpoint date changes (if checkbox is checked)
+    document.querySelector('input[name="occurred_at"]').addEventListener('change', function() {
+        const createTaskCheck = document.getElementById('createTaskCheck');
+        const taskDueDateInput = document.querySelector('input[name="task_due_date"]');
+        
+        if (createTaskCheck && createTaskCheck.checked && taskDueDateInput && this.value) {
+            const touchpointDate = new Date(this.value);
+            const sixMonthsLater = new Date(touchpointDate);
+            sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+            
+            const year = sixMonthsLater.getFullYear();
+            const month = String(sixMonthsLater.getMonth() + 1).padStart(2, '0');
+            const day = String(sixMonthsLater.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            taskDueDateInput.value = formattedDate;
+        }
     });
 </script>
 {% endblock %}
