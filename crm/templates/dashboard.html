@@ -7,51 +7,93 @@
 {% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12 d-flex justify-content-between align-items-center">
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
         <h1>
-            <i class="bi bi-speedometer2"></i> Dashboard
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
         </h1>
-        <div>
-            <a href="{{ url_for('tasks.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus"></i> Quick Add Task
-            </a>
+        <p class="text-muted mb-0">Welcome back! Here's your task overview.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('tasks.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> New Task
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <!-- Overdue Tasks -->
+    <div class="stat-card stat-card--danger">
+        <div class="stat-card-icon">
+            <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
+        <div class="stat-card-value">{{ stats.overdue }}</div>
+        <div class="stat-card-label">Overdue</div>
+    </div>
+    
+    <!-- Due Today -->
+    <div class="stat-card stat-card--warning">
+        <div class="stat-card-icon">
+            <i class="bi bi-clock-fill"></i>
+        </div>
+        <div class="stat-card-value">{{ stats.due_today }}</div>
+        <div class="stat-card-label">Due Today</div>
+    </div>
+    
+    <!-- Open Tasks -->
+    <div class="stat-card">
+        <div class="stat-card-icon">
+            <i class="bi bi-list-check"></i>
+        </div>
+        <div class="stat-card-value">{{ stats.open }}</div>
+        <div class="stat-card-label">Open Tasks</div>
+    </div>
+    
+    <!-- Completed -->
+    <div class="stat-card stat-card--success">
+        <div class="stat-card-icon">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="stat-card-value">{{ stats.completed }}</div>
+        <div class="stat-card-label">Completed</div>
     </div>
 </div>
 
-<!-- Task Filters -->
-<div class="row mb-3">
-    <div class="col-12">
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a class="nav-link {% if current_status == 'Open' %}active{% endif %}" 
-                   href="{{ url_for('dashboard.index', status='Open') }}">Open</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if current_status == 'Snoozed' %}active{% endif %}" 
-                   href="{{ url_for('dashboard.index', status='Snoozed') }}">Snoozed</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if current_status == 'Done' %}active{% endif %}" 
-                   href="{{ url_for('dashboard.index', status='Done') }}">Done</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if current_status == 'All' %}active{% endif %}" 
-                   href="{{ url_for('dashboard.index', status='All') }}">All</a>
-            </li>
-        </ul>
-    </div>
-</div>
+<!-- Main Content Row -->
+<div class="row">
+    <!-- Tasks Section -->
+    <div class="col-lg-8">
+        <!-- Task Filters -->
+        <div class="mb-3">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link {% if current_status == 'Open' %}active{% endif %}" 
+                       href="{{ url_for('dashboard.index', status='Open') }}">Open</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_status == 'Snoozed' %}active{% endif %}" 
+                       href="{{ url_for('dashboard.index', status='Snoozed') }}">Snoozed</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_status == 'Done' %}active{% endif %}" 
+                       href="{{ url_for('dashboard.index', status='Done') }}">Done</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_status == 'All' %}active{% endif %}" 
+                       href="{{ url_for('dashboard.index', status='All') }}">All</a>
+                </li>
+            </ul>
+        </div>
 
-<!-- All Tasks -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card h-100">
+        <!-- Tasks Table -->
+        <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-list-check"></i> Tasks ({{ tasks|length }})</h5>
+                <h5 class="mb-0"><i class="bi bi-list-task"></i> Tasks ({{ tasks|length }})</h5>
             </div>
             <div class="card-body">
+                {% if tasks %}
                 <div class="table-responsive">
                     <table id="tasksTable" class="table table-striped table-hover w-100">
                         <thead>
@@ -68,35 +110,46 @@
                             <tr>
                                 <td>
                                     {% if task.status == 'Done' %}
-                                        <span class="badge bg-success">Done</span>
+                                        <span class="badge bg-success"><i class="bi bi-check"></i> Done</span>
                                     {% elif task.status == 'Snoozed' %}
-                                        <span class="badge bg-secondary">Snoozed</span>
+                                        <span class="badge bg-secondary"><i class="bi bi-pause"></i> Snoozed</span>
                                     {% elif task.due_date < today %}
-                                        <span class="badge bg-danger">Overdue</span>
+                                        <span class="badge bg-danger"><i class="bi bi-exclamation"></i> Overdue</span>
                                     {% elif task.due_date == today %}
-                                        <span class="badge bg-warning text-dark">Due Today</span>
+                                        <span class="badge bg-warning"><i class="bi bi-clock"></i> Today</span>
                                     {% else %}
-                                        <span class="badge bg-primary">Upcoming</span>
+                                        <span class="badge bg-primary"><i class="bi bi-arrow-right"></i> Upcoming</span>
                                     {% endif %}
                                 </td>
-                                <td data-sort="{{ task.due_date.strftime('%Y%m%d') }}">{{ task.due_date.strftime('%m/%d/%Y') }}</td>
+                                <td data-sort="{{ task.due_date.strftime('%Y%m%d') }}">
+                                    {{ task.due_date.strftime('%m/%d/%Y') }}
+                                </td>
                                 <td>
-                                    <a href="{{ url_for('tasks.edit', task_id=task.id) }}" class="text-decoration-none">
+                                    <a href="{{ url_for('tasks.edit', task_id=task.id) }}">
                                         {{ task.description }}
                                     </a>
                                 </td>
                                 <td>
                                     {% if task.contact %}
-                                        <div class="mb-1"><i class="bi bi-person"></i> <a href="{{ url_for('contacts.detail', contact_id=task.contact_id) }}">{{ task.contact.name }}</a></div>
+                                        <div class="mb-1">
+                                            <i class="bi bi-person text-muted"></i> 
+                                            <a href="{{ url_for('contacts.detail', contact_id=task.contact_id) }}">{{ task.contact.name }}</a>
+                                        </div>
                                     {% endif %}
                                     {% if task.deal %}
-                                        <div class="mb-1"><i class="bi bi-briefcase"></i> <a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a></div>
+                                        <div class="mb-1">
+                                            <i class="bi bi-briefcase text-muted"></i> 
+                                            <a href="{{ url_for('deals.detail', deal_id=task.deal_id) }}">{{ task.deal.deal_name }}</a>
+                                        </div>
                                     {% endif %}
                                     {% if task.related_property %}
-                                        <div class="mb-1"><i class="bi bi-building"></i> <a href="{{ url_for('properties.detail', property_id=task.property_id) }}">{{ task.related_property.name or task.related_property.address }}</a></div>
+                                        <div class="mb-1">
+                                            <i class="bi bi-building text-muted"></i> 
+                                            <a href="{{ url_for('properties.detail', property_id=task.property_id) }}">{{ task.related_property.name or task.related_property.address }}</a>
+                                        </div>
                                     {% endif %}
                                     {% if not task.contact and not task.deal and not task.related_property %}
-                                        <span class="text-muted">-</span>
+                                        <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -124,7 +177,7 @@
                                         {% endif %}
 
                                         <a href="{{ url_for('tasks.edit', task_id=task.id) }}" class="btn btn-sm btn-outline-info" title="Edit">
-                                            <i class="bi bi-pencil-square"></i>
+                                            <i class="bi bi-pencil"></i>
                                         </a>
 
                                         <form method="POST" action="{{ url_for('tasks.delete', task_id=task.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this task?');">
@@ -139,11 +192,100 @@
                         </tbody>
                     </table>
                 </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <div class="empty-state-title">No tasks found</div>
+                    <p class="text-muted">
+                        {% if current_status == 'Open' %}
+                            You're all caught up! No open tasks.
+                        {% elif current_status == 'Done' %}
+                            No completed tasks yet.
+                        {% else %}
+                            No tasks in this category.
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('tasks.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Create Task
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Stats -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <span class="text-muted">Total Contacts</span>
+                    <span class="fw-bold">{{ stats.contacts }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <span class="text-muted">Properties</span>
+                    <span class="fw-bold">{{ stats.properties }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center py-2">
+                    <span class="text-muted">Snoozed Tasks</span>
+                    <span class="fw-bold">{{ stats.snoozed }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-activity"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_touchpoints %}
+                <ul class="activity-list">
+                    {% for tp in recent_touchpoints %}
+                    <li class="activity-item">
+                        <div class="activity-icon activity-icon--{{ tp.touchpoint_type }}">
+                            {% if tp.touchpoint_type == 'Call' %}
+                                <i class="bi bi-telephone-fill"></i>
+                            {% elif tp.touchpoint_type == 'Email' %}
+                                <i class="bi bi-envelope-fill"></i>
+                            {% elif tp.touchpoint_type == 'Meeting' %}
+                                <i class="bi bi-calendar-event-fill"></i>
+                            {% elif tp.touchpoint_type == 'Text' %}
+                                <i class="bi bi-chat-fill"></i>
+                            {% else %}
+                                <i class="bi bi-sticky-fill"></i>
+                            {% endif %}
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ tp.summary[:40] }}{% if tp.summary|length > 40 %}...{% endif %}</div>
+                            <div class="activity-meta">
+                                {{ tp.touchpoint_type }}
+                                {% if tp.contact %} · {{ tp.contact.name }}{% endif %}
+                                <br>{{ tp.occurred_at.strftime('%b %d, %Y') }}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('touchpoints.index') }}" class="btn btn-outline-primary btn-sm w-100 mt-3">
+                    View All Touchpoints
+                </a>
+                {% else %}
+                <div class="text-center py-3">
+                    <i class="bi bi-chat-square-text text-muted" style="font-size: 2rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No recent activity</p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -155,14 +297,22 @@
 
 <script>
     $(document).ready(function() {
-        $('#tasksTable').DataTable({
-            "order": [[ 1, "asc" ]], // Sort by Due Date by default (2nd column, index 1)
-            "pageLength": 10,
-            "lengthMenu": [10, 25, 50, 100],
-            "language": {
-                "emptyTable": "No open tasks found."
-            }
-        });
+        // Only initialize DataTable if there are rows
+        if ($('#tasksTable tbody tr').length > 0) {
+            $('#tasksTable').DataTable({
+                "order": [[ 1, "asc" ]], // Sort by Due Date
+                "pageLength": 10,
+                "lengthMenu": [10, 25, 50, 100],
+                "language": {
+                    "emptyTable": "No tasks found.",
+                    "search": "",
+                    "searchPlaceholder": "Filter tasks..."
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": [4] } // Disable sorting on Actions
+                ]
+            });
+        }
     });
 </script>
 {% endblock %}
