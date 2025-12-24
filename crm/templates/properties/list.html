@@ -63,7 +63,6 @@
                                 <th>Buyer Interest</th>
                                 <th>Seller Motivation</th>
                                 <th>Owner</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,11 +109,6 @@
                                         {% else %}
                                             —
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{{ url_for('properties.edit', property_id=property.id) }}" class="btn btn-sm btn-outline-secondary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

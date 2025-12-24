@@ -25,7 +25,6 @@
                                 <th>Role</th>
                                 <th>Phone</th>
                                 <th>Email</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,14 +34,9 @@
                                         <a href="{{ url_for('contacts.detail', contact_id=contact.id) }}">{{ contact.name }}</a>
                                     </td>
                                     <td>{{ contact.company or '—' }}</td>
-                                    <td>{{ contact.role_type or '—' }}</td>
+                                    <td>{{ contact.role_type|replace_underscore or '—' }}</td>
                                     <td>{{ contact.phone or '—' }}</td>
                                     <td>{{ contact.email or '—' }}</td>
-                                    <td>
-                                        <a href="{{ url_for('contacts.edit', contact_id=contact.id) }}" class="btn btn-sm btn-outline-secondary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
