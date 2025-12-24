@@ -60,7 +60,7 @@ def create():
             return redirect(request.referrer or url_for('dashboard.index'))
         
         # Parse occurred_at
-        occurred_at = datetime.utcnow()
+        occurred_at = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         if occurred_at_str:
             try:
                 occurred_at = datetime.strptime(occurred_at_str, '%Y-%m-%dT%H:%M')

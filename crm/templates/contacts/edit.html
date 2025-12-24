@@ -67,12 +67,39 @@
                         <textarea name="notes" class="form-control" rows="4">{{ contact.notes or '' }}</textarea>
                     </div>
                     
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check"></i> Update Contact
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check"></i> Update Contact
+                            </button>
+                            <a href="{{ url_for('contacts.detail', contact_id=contact.id) }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteContactModal">
+                            <i class="bi bi-trash3"></i> Delete
                         </button>
-                        <a href="{{ url_for('contacts.detail', contact_id=contact.id) }}" class="btn btn-secondary">Cancel</a>
                     </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Contact Modal -->
+<div class="modal fade" id="deleteContactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>{{ contact.name }}</strong>?</p>
+                <p class="text-danger small">This will also remove their ownership links to properties.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('contacts.delete', contact_id=contact.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete Contact</button>
                 </form>
             </div>
         </div>

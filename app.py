@@ -58,7 +58,13 @@ def date_filter(value, format_string='Y'):
 # Context processor to inject current year into all templates
 @app.context_processor
 def inject_current_year():
-    return {'current_year': datetime.now().year}
+    return {'current_year': datetime.now().year, 'now': datetime.now()}
+
+@app.template_filter('replace_underscore')
+def replace_underscore_filter(s):
+    if not s:
+        return s
+    return s.replace('_', ' ')
 
 # Register all routes
 register_routes(app)

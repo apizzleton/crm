@@ -31,7 +31,7 @@
                 <tbody>
                     {% for touchpoint in touchpoints %}
                     <tr>
-                        <td class="text-nowrap">{{ touchpoint.occurred_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="text-nowrap">{{ touchpoint.occurred_at.strftime('%m/%d/%Y') }}</td>
                         <td>
                             <span class="badge bg-secondary">{{ touchpoint.touchpoint_type }}</span>
                         </td>
@@ -97,8 +97,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Date & Time</label>
-                        <input type="datetime-local" name="occurred_at" class="form-control">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="occurred_at" class="form-control" value="{{ now.strftime('%Y-%m-%d') }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Summary</label>
@@ -212,6 +212,7 @@
 </script>
 {% endblock %}
 {% endblock %}
+
 
 
 
