@@ -3,13 +3,64 @@
 {% block title %}Properties - Multifamily CRM{% endblock %}
 
 {% block content %}
-{% set _filters = filters if filters is defined else {} %}
+{% set filters = active_filters|default({}) %}
 <div class="row mb-4">
     <div class="col-12 d-flex justify-content-between align-items-center">
         <h1><i class="bi bi-building"></i> Properties</h1>
-        <a href="{{ url_for('properties.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> New Property
-        </a>
+        <div class="d-flex gap-2">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="columnToggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-columns-gap"></i> Columns
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="columnToggle" id="columnMenu">
+                    <li><h6 class="dropdown-header">Toggle Columns</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="property" checked> Property
+                        </label>
+                    </li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="address" checked> Address
+                        </label>
+                    </li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="units" checked> Units
+                        </label>
+                    </li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="estimated_value_min" checked> Est. Value Min
+                        </label>
+                    </li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="estimated_value_max" checked> Est. Value Max
+                        </label>
+                    </li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="buyer_interest" checked> Buyer Interest
+                        </label>
+                    </li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="seller_motivation" checked> Seller Motivation
+                        </label>
+                    </li>
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" class="column-toggle me-2" data-column="owner" checked> Owner
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <a href="{{ url_for('properties.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Property
+            </a>
+        </div>
     </div>
 </div>
 
@@ -17,14 +68,16 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form class="row g-3 mb-4" method="get">
+                <form class="row g-3 mb-4" method="get" id="filterForm">
+                    <input type="hidden" name="sort_by" id="sortBy" value="{{ filters.sort_by|default('created_at') }}">
+                    <input type="hidden" name="sort_order" id="sortOrder" value="{{ filters.sort_order|default('desc') }}">
                     <div class="col-md-4">
                         <label for="city" class="form-label">City</label>
                         <input type="text"
                                class="form-control"
                                id="city"
                                name="city"
-                               value="{{ _filters.city|default('') }}"
+                               value="{{ filters.city|default('') }}"
                                placeholder="e.g. Austin">
                     </div>
                     <div class="col-md-3">
@@ -33,7 +86,7 @@
                                class="form-control"
                                id="min_units"
                                name="min_units"
-                               value="{{ _filters.min_units|default('') }}"
+                               value="{{ filters.min_units|default('') }}"
                                min="0"
                                placeholder="e.g. 50">
                     </div>
@@ -43,7 +96,7 @@
                                class="form-control"
                                id="max_units"
                                name="max_units"
-                               value="{{ _filters.max_units|default('') }}"
+                               value="{{ filters.max_units|default('') }}"
                                min="0"
                                placeholder="e.g. 200">
                     </div>
@@ -54,24 +107,49 @@
                 </form>
                 {% if properties %}
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped">
+                    <table class="table table-hover table-striped" id="propertiesTable">
                         <thead>
                             <tr>
-                                <th>Property</th>
-                                <th>Address</th>
-                                <th>Units</th>
-                                <th>Buyer Interest</th>
-                                <th>Seller Motivation</th>
-                                <th>Owner</th>
+                                <th class="sortable column-property" data-sort="name">
+                                    Property
+                                    <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                                </th>
+                                <th class="sortable column-address" data-sort="address">
+                                    Address
+                                    <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                                </th>
+                                <th class="sortable column-units" data-sort="units">
+                                    Units
+                                    <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                                </th>
+                                <th class="sortable column-estimated_value_min" data-sort="estimated_value_min">
+                                    Est. Value Min
+                                    <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                                </th>
+                                <th class="sortable column-estimated_value_max" data-sort="estimated_value_max">
+                                    Est. Value Max
+                                    <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                                </th>
+                                <th class="sortable column-buyer_interest" data-sort="buyer_interest">
+                                    Buyer Interest
+                                    <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                                </th>
+                                <th class="sortable column-seller_motivation" data-sort="seller_motivation">
+                                    Seller Motivation
+                                    <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+                                </th>
+                                <th class="column-owner">
+                                    Owner
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for property in properties %}
                                 <tr>
-                                    <td>
+                                    <td class="column-property">
                                         <a href="{{ url_for('properties.detail', property_id=property.id) }}">{{ property.name or property.address }}</a>
                                     </td>
-                                    <td>
+                                    <td class="column-address">
                                         {% set address_line = property.address %}
                                         {% set location_parts = [] %}
                                         {% if property.city %}{% set _ = location_parts.append(property.city) %}{% endif %}
@@ -82,8 +160,22 @@
                                         <div class="text-muted small">{{ location_parts|join(', ') }}</div>
                                         {% endif %}
                                     </td>
-                                    <td>{{ property.units or '—' }}</td>
-                                    <td>
+                                    <td class="column-units">{{ property.units or '—' }}</td>
+                                    <td class="column-estimated_value_min">
+                                        {% if property.estimated_value_min %}
+                                            ${{ "{:,.0f}".format(property.estimated_value_min|float) }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td class="column-estimated_value_max">
+                                        {% if property.estimated_value_max %}
+                                            ${{ "{:,.0f}".format(property.estimated_value_max|float) }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td class="column-buyer_interest">
                                         {% if property.buyer_interest %}
                                             <span class="badge {% if property.buyer_interest >= 8 %}bg-success{% elif property.buyer_interest >= 5 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
                                                 {{ property.buyer_interest }}/10
@@ -92,7 +184,7 @@
                                             —
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    <td class="column-seller_motivation">
                                         {% if property.seller_motivation %}
                                             <span class="badge {% if property.seller_motivation >= 8 %}bg-success{% elif property.seller_motivation >= 5 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
                                                 {{ property.seller_motivation }}/10
@@ -101,7 +193,7 @@
                                             —
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    <td class="column-owner">
                                         {% if property.owners_list %}
                                             {% for owner in property.owners_list %}
                                                 {% if loop.index > 1 %}, {% endif %}{{ owner }}
@@ -129,4 +221,125 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{# Set filters variable for this block since Jinja2 block scopes are separate #}
+{% set filters = active_filters|default({}) %}
+<script>
+(function() {
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Column visibility management
+        const STORAGE_KEY = 'properties_table_columns';
+        
+        // Initialize column visibility from localStorage
+        function initColumnVisibility() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const columns = JSON.parse(saved);
+                    document.querySelectorAll('.column-toggle').forEach(checkbox => {
+                        const column = checkbox.dataset.column;
+                        if (columns.hasOwnProperty(column)) {
+                            checkbox.checked = columns[column];
+                            toggleColumn(column, columns[column]);
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading column preferences:', e);
+                }
+            }
+        }
+        
+        // Toggle column visibility
+        function toggleColumn(column, show) {
+            // Toggle all cells (both header and body cells) with the column class
+            const elements = document.querySelectorAll(`.column-${column}`);
+            elements.forEach(element => {
+                element.style.display = show ? '' : 'none';
+            });
+        }
+        
+        // Save column visibility to localStorage
+        function saveColumnVisibility() {
+            const columns = {};
+            document.querySelectorAll('.column-toggle').forEach(checkbox => {
+                columns[checkbox.dataset.column] = checkbox.checked;
+            });
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(columns));
+            } catch (e) {
+                console.error('Error saving column preferences:', e);
+            }
+        }
+        
+        // Initialize column visibility
+        initColumnVisibility();
+        
+        // Handle column toggle changes
+        document.querySelectorAll('.column-toggle').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                toggleColumn(this.dataset.column, this.checked);
+                saveColumnVisibility();
+            });
+        });
+        
+        // Sorting functionality - get current sort state from server
+        const currentSortBy = '{{ filters.sort_by|default("created_at") }}';
+        const currentSortOrder = '{{ filters.sort_order|default("desc") }}';
+        
+        // Update sort icons based on current sort
+        document.querySelectorAll('.sortable').forEach(header => {
+            const sortField = header.dataset.sort;
+            if (sortField && sortField === currentSortBy) {
+                const icon = header.querySelector('.sort-icon');
+                if (icon) {
+                    icon.className = `bi ms-1 sort-icon ${currentSortOrder === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'}`;
+                }
+            }
+        });
+        
+        // Handle column header clicks for sorting
+        document.querySelectorAll('.sortable').forEach(header => {
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sortField = this.dataset.sort;
+                if (!sortField) return;
+                
+                const form = document.getElementById('filterForm');
+                const sortByInput = document.getElementById('sortBy');
+                const sortOrderInput = document.getElementById('sortOrder');
+                
+                if (!form || !sortByInput || !sortOrderInput) {
+                    console.error('Form elements not found');
+                    return;
+                }
+                
+                // Determine sort order
+                let newOrder = 'asc';
+                if (sortField === currentSortBy && currentSortOrder === 'asc') {
+                    newOrder = 'desc';
+                }
+                
+                // Update hidden inputs
+                sortByInput.value = sortField;
+                sortOrderInput.value = newOrder;
+                
+                // Submit form
+                form.submit();
+            });
+            
+            // Add hover effect
+            header.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#f8f9fa';
+            });
+            header.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = '';
+            });
+        });
+    });
+})();
+</script>
 {% endblock %}

@@ -135,13 +135,12 @@ def list_properties():
     city = request.args.get('city', '').strip()
     min_units_str = request.args.get('min_units', '').strip()
     max_units_str = request.args.get('max_units', '').strip()
+    
+    # Sorting parameters
+    sort_by = request.args.get('sort_by', 'created_at')
+    sort_order = request.args.get('sort_order', 'desc')
 
-    query = Property.query
-
-    # Apply city filter (case-insensitive partial match)
-    if city:
-        query = query.filter(Property.city.ilike(f"%{city}%"))
-
+    # Parse unit filters
     min_units = None
     max_units = None
     if min_units_str:
@@ -156,29 +155,64 @@ def list_properties():
         except ValueError:
             flash('Max units must be a number.', 'error')
 
-    # If both bounds are present, ensure they make sense; drop the filter if not.
+    # If both bounds are present, ensure they make sense
     if min_units is not None and max_units is not None and max_units < min_units:
         flash('Max units must be greater than or equal to min units.', 'error')
         min_units = None
         max_units = None
 
+    # Define sortable fields
+    valid_sort_fields = {
+        'name': Property.name,
+        'address': Property.address,
+        'city': Property.city,
+        'units': Property.units,
+        'estimated_value_min': Property.estimated_value_min,
+        'estimated_value_max': Property.estimated_value_max,
+        'buyer_interest': Property.buyer_interest,
+        'seller_motivation': Property.seller_motivation,
+        'created_at': Property.created_at
+    }
+    
+    if sort_by not in valid_sort_fields:
+        sort_by = 'created_at'
+    
+    sort_field = valid_sort_fields[sort_by]
+    
+    if sort_order not in ['asc', 'desc']:
+        sort_order = 'desc'
+    
+    # Simple query using legacy style for broader compatibility
+    query = Property.query
+    
+    # Apply filters
+    if city:
+        query = query.filter(Property.city.ilike(f"%{city}%"))
     if min_units is not None:
         query = query.filter(Property.units >= min_units)
     if max_units is not None:
         query = query.filter(Property.units <= max_units)
+        
+    # Apply sorting
+    if sort_order == 'asc':
+        query = query.order_by(sort_field.asc())
+    else:
+        query = query.order_by(sort_field.desc())
+        
+    properties = query.options(joinedload(Property.owners).joinedload(PropertyOwner.contact)).all()
 
-    properties = query.options(joinedload(Property.owners).joinedload(PropertyOwner.contact)).order_by(Property.created_at.desc()).all()
+    # Add owner information to each property for convenience in template
+    for prop in properties:
+        prop.owners_list = [ownership.contact.name for ownership in prop.owners]
 
-    # Add owner information to each property
-    for property in properties:
-        property.owners_list = [ownership.contact.name for ownership in property.owners]
-
-    filters = {
+    query_filters = {
         'city': city,
         'min_units': min_units_str,
-        'max_units': max_units_str
+        'max_units': max_units_str,
+        'sort_by': sort_by,
+        'sort_order': sort_order
     }
-    return render_template('properties/list.html', properties=properties, filters=filters)
+    return render_template('properties/list.html', properties=properties, active_filters=query_filters)
 
 
 @properties_bp.route('/<int:property_id>')
